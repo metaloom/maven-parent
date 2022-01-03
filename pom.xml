@@ -1,15 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.loom</groupId>
+	<groupId>io.metaloom</groupId>
 	<artifactId>maven-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
 		<!-- Dependency versions -->
 		<junit.version>4.13.1</junit.version>
 		<mockito.version>1.10.19</mockito.version>
+		<slf4j.version>1.7.32</slf4j.version>
+		<logback.classic.version>1.2.10</logback.classic.version>
 
 		<!--Plugin versions -->
 		<maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
@@ -17,14 +23,156 @@
 		<maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
 		<maven.dependency.plugin.version>3.1.1</maven.dependency.plugin.version>
 		<maven.surefire.plugin.version>3.0.0-M3</maven.surefire.plugin.version>
+		<maven.nexus.plugin.version>1.6.8</maven.nexus.plugin.version>
 		<maven.failsafe.plugin.version>3.0.0-M3</maven.failsafe.plugin.version>
 		<maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
 		<maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
 		<maven.shade.plugin.version>3.1.1</maven.shade.plugin.version>
-		<maven.jar.plugin.version>3.1.0</maven.jar.plugin.version>
-		<maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+		<maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
+		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<maven.site.plugin.version>3.3</maven.site.plugin.version>
+
+		<!-- SCM / Deployment -->
+		<project.github.repository>metaloom/maven-parent</project.github.repository>
+		<nexus.url>https://s01.oss.sonatype.org</nexus.url>
 	</properties>
+
+	<!-- Meta -->
+	<inceptionYear>2021</inceptionYear>
+	<description>Parent POM for MetaLoom maven projects</description>
+	<url>https://github.com/metaloom/maven-parent</url>
+	<name>maven-parent</name>
+
+	<scm>
+		<connection>scm:git:git@github.com:metaloom/maven-parent.git</connection>
+		<developerConnection>scm:git:git@github.com:metaloom/maven-parent.git</developerConnection>
+		<url>https://github.com/metaloom/maven-parent</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>jotschi</id>
+			<name>Johannes Schüth</name>
+			<roles>
+				<role>Maintainer</role>
+			</roles>
+			<email>git@jotschi.de</email>
+			<organization>MetaLoom</organization>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://spdx.org/licenses/Apache-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<profiles>
+
+		<profile>
+			<id>publication</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<attach>true</attach>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<attach>true</attach>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>remote-deploy</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<build>
+				<defaultGoal>deploy</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>gpg</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<keyname>${gpg.keyname}</keyname>
+									<passphraseServerId>${gpg.keyname}</passphraseServerId>
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
@@ -32,17 +180,20 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
-				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback.classic.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
-	<scm>
-		<connection>scm:git:git@github.com:jotschi/maven-parent.git</connection>
-		<developerConnection>scm:git:git@github.com:jotschi/maven-parent.git</developerConnection>
-		<url>https://github.com/jotschi/maven-parent</url>
-		<tag>HEAD</tag>
-	</scm>
 
 	<build>
 		<pluginManagement>
@@ -71,6 +222,20 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>${maven.jar.plugin.version}</version>
+					<configuration>
+						<archive>
+							<manifestEntries>
+								<Build-Jdk>${java.version} (${java.vendor} ${java.vm.version})</Build-Jdk>
+								<Build-Timestamp>${git.build.time}</Build-Timestamp>
+								<Build-Revision>${git.commit.id}</Build-Revision>
+								<Build-OS>${os.name} ${os.arch} ${os.version}</Build-OS>
+							</manifestEntries>
+							<manifest>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							</manifest>
+						</archive>
+					</configuration>
+
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -82,9 +247,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven.compiler.plugin.version}</version>
 					<configuration>
-						<compilerVersion>1.8</compilerVersion>
-						<source>1.8</source>
-						<target>1.8</target>
+						<release>11</release>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -101,6 +264,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
 					<version>${maven.dependency.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>${maven.nexus.plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -142,55 +310,18 @@
 		</pluginManagement>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>maven.jotschi.de</id>
-			<name>jotschi Maven Repository</name>
-			<url>https://maven.jotschi.de/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>maven.jotschi.de (snapshots)</id>
-			<name>jotschi Maven Repository</name>
-			<url>https://maven.jotschi.de/maven2-snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven.jotschi.de</id>
-			<name>jotschi Maven Repository</name>
-			<url>https://maven.jotschi.de/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<distributionManagement>
-		<repository>
-			<id>lan.releases</id>
-			<name>jotschi Releases Repository</name>
-			<url>https://repo.jotschi.de/artifactory/gtx-maven-releases</url>
-		</repository>
 		<snapshotRepository>
-			<id>lan.snapshots</id>
-			<name>jotschi Snapshots Repository</name>
-			<url>https://repo.jotschi.de/artifactory/gtx-maven-snapshots</url>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<site>
+			<id>github</id>
+			<url>scm:git:ssh://git@github.com/${project.github.repository}.git</url>
+		</site>
 	</distributionManagement>
 </project>

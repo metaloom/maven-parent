@@ -8,5 +8,6 @@ staging
 output
 *.swp
 *.orig
+/out
 chromedriver.log
 libpeerconnection.log
