@@ -6,7 +6,7 @@ This is the central parent maven project for all MetaLoom projects.
 ## Release Process
 
 ```bash
-# Update maven version to next release + Update jreleaser.yml version
+# Update maven version to next release
 mvn versions:set -DgenerateBackupPoms=false
 
 # Check build
