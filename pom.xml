@@ -260,6 +260,11 @@
                 <version>${logback.classic.version}</version>
             </dependency>
             <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.classic.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -329,7 +334,8 @@
                     <configuration>
                         <archive>
                             <manifestEntries>
-                                <Build-Jdk>${java.version} (${java.vendor} ${java.vm.version})</Build-Jdk>
+                                <Build-Jdk>${java.version} (${java.vendor}
+                                    ${java.vm.version})</Build-Jdk>
                                 <Build-Timestamp>${git.build.time}</Build-Timestamp>
                                 <Build-Revision>${git.commit.id}</Build-Revision>
                                 <Build-OS>${os.name} ${os.arch} ${os.version}</Build-OS>
