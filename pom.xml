@@ -12,7 +12,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Dependency versions -->
-        <junit6.version>6.0.0</junit6.version>
+        <junit6.version>6.0.3</junit6.version>
         <mockito.version>1.10.19</mockito.version>
         <slf4j.version>2.0.7</slf4j.version>
         <logback.classic.version>1.5.19</logback.classic.version>
@@ -241,6 +241,11 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
                 <version>${junit6.version}</version>
             </dependency>
             <dependency>
